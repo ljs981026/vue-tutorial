@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .text-red {
+        color: red;
+      }
+      .text-green {
+        color: green;
+      }
+      .text-blue {
+        color: blue;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <input v-model="message" />
+      <!--  -->
+      <input
+        v-bind:value="message"
+        v-bind:name="message"
+        v-on:input="message =  $event.target.value"
+      />
+      {{ message }}
+      <div>
+        <input v-model="loginForm.username" />
+        <input v-model="loginForm.password" />
+        <button v-on:click="submitForm">Submit</button>
+      </div>
+      <p>{{ formInfo }} {{ filterList }}</p>
+      <p>
+        <button v-on:click="user = { name: 'Bob'}">Toggle</button>
+        <button v-on:click="show = !show">Toggle2</button>
+        <!-- v-if는 렌더링 v-show는 스타일링 주로 v-if를 사용 -->
+        <span v-if="show">Bob</span>
+        <span v-show="show">Bob</span>
+        <span v-if="user"> {{ user.name }} </span>
+      </p>
+      <p v-if="show">
+        <span v-for="item in list"> <span> {{ item }}, </span> </span>
+        <span v-for="item in filterList"> <span> {{ item }}, </span> </span>
+        <span v-for="(item, index) in list" v-bind:class="item.color">
+          <span> {{index + 1}}. {{ item.name }} </span>
+          <span> {{ item.age }}</span>
+          <span-component
+            v-bind:item="item"
+            v-bind:index="index"
+            v-on:shout="log"
+          ></span-component>
+        </span>
+      </p>
+    </div>
+    <script src="http://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script>
+      Vue.component("span-component", {
+        props: ["item", "index"],
+        created() {
+          console.log("생성됨");
+        },
+        beforeDestroy() {
+          console.log("삭제됨");
+        },
+        methods: {
+          shout(v) {
+            this.$emit("shout", { value: v });
+          },
+        },
+        template:
+          '<span v-on:click="shout(index)"> {{index + 1}}. {{ item.name }} </span>',
+      });
+
+      var app = new Vue({
+        el: "#app",
+        data: {
+          message: "Hello world",
+          loginForm: {
+            username: "",
+            password: "",
+          },
+          list: [
+            { name: "a - foo", age: 10, color: "text-red" },
+            { name: "a - john", age: 15, color: "text-green" },
+            { name: "b - doe", age: 20, color: "text-blue" },
+          ],
+          show: true,
+          user: null,
+        },
+        created() {
+          console.log("Main created");
+        },
+        mounted() {
+          console.log("Main mounted");
+        },
+        beforeDestroy() {
+          console.log("component destroyed");
+        },
+        methods: {
+          submitForm() {
+            loginForm = "hello";
+            console.log("Submitting login form", this.loginForm);
+
+            var callLog = () => {
+              this.log("Logging something");
+              this.log(this.formInfo);
+            };
+            callLog();
+          },
+          log(v) {
+            var { value } = v;
+            console.log(v.value);
+          },
+        },
+        computed: {
+          formInfo: function () {
+            return this.loginForm.username + " " + this.loginForm.password;
+          },
+          filterList: function () {
+            return this.list.filter((x) => {
+              return x.name.indexOf("a") === 0;
+            });
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
